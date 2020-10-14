@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class App {
     
-    private static final AtomicLong idGen = new AtomicLong(System.currentTimeMillis()*100000);
+    private static final AtomicLong idGen = new AtomicLong(System.currentTimeMillis()/100000);
     
     public static class Person {
         public final Long id;
@@ -43,9 +43,8 @@ public class App {
     
     public static Long insertPerson(final String surname, final String name, final Date dob, final Connection conn) {
         final long id = idGen.incrementAndGet();
-        final var person = new Person(id, surname, name, dob);
+        System.out.print(id);
         try (final PreparedStatement ps = conn.prepareStatement("insert into person_ (_id, name_, surname_, dob_) values(?, ?, ?, ?);")) {
-            conn.setAutoCommit(false);
             ps.setLong(1, id);
             ps.setString(2, surname);
             ps.setString(3, name);
@@ -93,7 +92,10 @@ public class App {
 
         final String dbUrl = "jdbc:postgresql://localhost:5432/foundation";
         try (final Connection conn = DriverManager.getConnection(dbUrl, "dbuser", "dbpassw0rd")) {
+            conn.setAutoCommit(false);
              findPersonBySurname("Brown", conn).forEach(System.out::println);
+             insertPerson("Jones", "Adam", null, conn);
+             allPersons(conn).forEach(System.out::println);;
         }
     }
 }
